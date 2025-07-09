@@ -1,8 +1,26 @@
 {
   "name": "kalioproject",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+  "keywords": [
+    "8852"
+  ],
+  "homepage": "https://github.com/manellkkk/KalioProject#readme",
+  "bugs": {
+    "url": "https://github.com/manellkkk/KalioProject/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manellkkk/KalioProject.git"
+  },
+  "license": "ISC",
+  "author": "Narciso Emanuel Silva de Amorim",
   "type": "module",
+  "main": "eslint.config.js",
+  "directories": {
+    "doc": "docs"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -10,8 +28,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/react-router-dom": "^5.3.3",
+    "axios": "^1.10.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-input-mask": "^2.0.4",
+    "react-router-dom": "^7.6.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
