@@ -1,5 +1,7 @@
+// Register.tsx (completo e funcional com retorno para a última página)
+
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "../assets/css/login.css";
 import KalioLogo from "../assets/logos/kalio_logo_extend.png";
@@ -7,6 +9,8 @@ import CPFInput from "../components/CPFInput";
 
 function Register() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const lastPage = location.state?.from || "/home";
 
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
@@ -23,7 +27,6 @@ function Register() {
   const [repeatPasswordError, setRepeatPasswordError] = useState("");
   const [serverError, setServerError] = useState("");
 
-  // Função para validar CPF (pode colocar seu código de validação aqui)
   function validarCPF(cpf: string) {
     cpf = cpf.replace(/[^\d]+/g, "");
     if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
@@ -46,34 +49,24 @@ function Register() {
   useEffect(() => {
     if (fullName.trim() !== "") setFullNameError("");
   }, [fullName]);
-
   useEffect(() => {
     if (username.trim() !== "") setUsernameError("");
   }, [username]);
-
-  // Aqui validamos CPF automaticamente ao completar 11 dígitos
   useEffect(() => {
     const cpfDigits = cpfValue.replace(/\D/g, "");
     if (cpfDigits.length === 11) {
-      if (!validarCPF(cpfDigits)) {
-        setCpfError("CPF inválido.");
-      } else {
-        setCpfError("");
-      }
+      setCpfError(validarCPF(cpfDigits) ? "" : "CPF inválido.");
     } else {
       setCpfError("");
     }
   }, [cpfValue]);
-
   useEffect(() => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (emailRegex.test(email)) setEmailError("");
   }, [email]);
-
   useEffect(() => {
     if (password.length >= 6) setPasswordError("");
   }, [password]);
-
   useEffect(() => {
     if (repeatPassword === password) setRepeatPasswordError("");
   }, [repeatPassword, password]);
@@ -91,11 +84,8 @@ function Register() {
       hasError = true;
     }
     const cpfDigits = cpfValue.replace(/\D/g, "");
-    if (cpfDigits.length !== 11) {
+    if (cpfDigits.length !== 11 || !validarCPF(cpfDigits)) {
       setCpfError("Digite um CPF válido com 11 dígitos.");
-      hasError = true;
-    } else if (!validarCPF(cpfDigits)) {
-      setCpfError("CPF inválido.");
       hasError = true;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -117,12 +107,12 @@ function Register() {
     try {
       await axios.post("http://localhost:5000/api/aluno/register", {
         nome: fullName,
-        cpf: cpfValue,
+        nomeUsuario: username,
+        cpf: cpfDigits,
         email,
         senha: password,
       });
-
-      navigate("/login");
+      navigate("/login", { state: { from: lastPage } });
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         setServerError(error.response.data.error);
@@ -144,8 +134,7 @@ function Register() {
               <h1>REGISTRAR</h1>
               <p id="LGPD">
                 Na KALIO, sua privacidade é prioridade. Seus dados são
-                protegidos pela LGPD e utilizados apenas para oferecer um
-                serviço seguro, eficiente e personalizado.
+                protegidos pela LGPD.
               </p>
             </div>
 
@@ -158,9 +147,7 @@ function Register() {
                 onChange={(e) => setFullName(e.target.value)}
               />
               {fullNameError && (
-                <p
-                  style={{ color: "red", fontSize: "0.9rem", margin: "4px 0" }}
-                >
+                <p style={{ color: "red", fontSize: "0.9rem" }}>
                   {fullNameError}
                 </p>
               )}
@@ -173,20 +160,14 @@ function Register() {
                 onChange={(e) => setUsername(e.target.value)}
               />
               {usernameError && (
-                <p
-                  style={{ color: "red", fontSize: "0.9rem", margin: "4px 0" }}
-                >
+                <p style={{ color: "red", fontSize: "0.9rem" }}>
                   {usernameError}
                 </p>
               )}
 
               <CPFInput className="input-field" onChange={setCpfValue} />
               {cpfError && (
-                <p
-                  style={{ color: "red", fontSize: "0.9rem", margin: "4px 0" }}
-                >
-                  {cpfError}
-                </p>
+                <p style={{ color: "red", fontSize: "0.9rem" }}>{cpfError}</p>
               )}
 
               <input
@@ -197,11 +178,7 @@ function Register() {
                 onChange={(e) => setEmail(e.target.value)}
               />
               {emailError && (
-                <p
-                  style={{ color: "red", fontSize: "0.9rem", margin: "4px 0" }}
-                >
-                  {emailError}
-                </p>
+                <p style={{ color: "red", fontSize: "0.9rem" }}>{emailError}</p>
               )}
 
               <input
@@ -212,9 +189,7 @@ function Register() {
                 onChange={(e) => setPassword(e.target.value)}
               />
               {passwordError && (
-                <p
-                  style={{ color: "red", fontSize: "0.9rem", margin: "4px 0" }}
-                >
+                <p style={{ color: "red", fontSize: "0.9rem" }}>
                   {passwordError}
                 </p>
               )}
@@ -227,17 +202,13 @@ function Register() {
                 onChange={(e) => setRepeatPassword(e.target.value)}
               />
               {repeatPasswordError && (
-                <p
-                  style={{ color: "red", fontSize: "0.9rem", margin: "4px 0" }}
-                >
+                <p style={{ color: "red", fontSize: "0.9rem" }}>
                   {repeatPasswordError}
                 </p>
               )}
 
               {serverError && (
-                <p
-                  style={{ color: "red", fontSize: "0.9rem", margin: "6px 0" }}
-                >
+                <p style={{ color: "red", fontSize: "0.9rem" }}>
                   {serverError}
                 </p>
               )}
@@ -253,7 +224,7 @@ function Register() {
               <div className="centralized">
                 <p
                   style={{ cursor: "pointer", color: "#007bff" }}
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate(-1)}
                 >
                   Já possui cadastro? Faça login
                 </p>

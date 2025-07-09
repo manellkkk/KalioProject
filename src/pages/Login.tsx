@@ -1,44 +1,40 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "../assets/css/login.css";
 import KalioLogo from "../assets/logos/kalio_logo_extend.png";
 import CPFInput from "../components/CPFInput";
 
-// Função para validar CPF real
+// Validação real de CPF
 function validarCPF(cpf: string) {
   cpf = cpf.replace(/[^\d]+/g, "");
-  if (cpf.length !== 11) return false;
-  if (/^(\d)\1+$/.test(cpf)) return false;
-
+  if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
   let soma = 0;
   let resto;
-
-  for (let i = 1; i <= 9; i++) {
-    soma += parseInt(cpf.substring(i - 1, i)) * (11 - i);
-  }
+  for (let i = 1; i <= 9; i++) soma += parseInt(cpf[i - 1]) * (11 - i);
   resto = (soma * 10) % 11;
   if (resto === 10 || resto === 11) resto = 0;
-  if (resto !== parseInt(cpf.substring(9, 10))) return false;
-
+  if (resto !== parseInt(cpf[9])) return false;
   soma = 0;
-  for (let i = 1; i <= 10; i++) {
-    soma += parseInt(cpf.substring(i - 1, i)) * (12 - i);
-  }
+  for (let i = 1; i <= 10; i++) soma += parseInt(cpf[i - 1]) * (12 - i);
   resto = (soma * 10) % 11;
   if (resto === 10 || resto === 11) resto = 0;
-  if (resto !== parseInt(cpf.substring(10, 11))) return false;
-
+  if (resto !== parseInt(cpf[10])) return false;
   return true;
 }
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const lastPage = location.state?.from || "/dashboard";
+
   const [cpfValue, setCpfValue] = useState("");
   const [password, setPassword] = useState("");
+
   const [cpfError, setCpfError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [serverError, setServerError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Validação automática do CPF ao completar 11 dígitos
   useEffect(() => {
     const cpfDigits = cpfValue.replace(/\D/g, "");
     if (cpfDigits.length === 11) {
@@ -52,37 +48,51 @@ function Login() {
     }
   }, [cpfValue]);
 
-  // Limpar erro de senha ao digitar senha válida
   useEffect(() => {
-    if (password.length >= 6) {
-      setPasswordError("");
-    }
+    if (password.length >= 6) setPasswordError("");
   }, [password]);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    setServerError("");
     let hasError = false;
     const cpfDigits = cpfValue.replace(/\D/g, "");
 
-    if (cpfDigits.length !== 11) {
+    if (cpfDigits.length !== 11 || !validarCPF(cpfDigits)) {
       setCpfError("Digite um CPF válido com 11 dígitos.");
       hasError = true;
-    } else if (!validarCPF(cpfDigits)) {
-      setCpfError("CPF inválido.");
-      hasError = true;
-    } else {
-      setCpfError("");
     }
 
     if (password.length < 6) {
       setPasswordError("A senha deve ter pelo menos 6 caracteres.");
       hasError = true;
-    } else {
-      setPasswordError("");
     }
 
-    if (!hasError) {
-      alert("Login realizado com sucesso!");
-      // Aqui você pode fazer a chamada para o backend para autenticar
+    if (hasError) return;
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/aluno/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ cpf: cpfDigits, senha: password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.redirect === "/verify-email" && data.token) {
+          navigate("/verify-email", { state: { token: data.token } });
+        } else {
+          setServerError(data.error || "Erro ao realizar login.");
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      setServerError("Erro de conexão com o servidor.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -97,11 +107,9 @@ function Login() {
             <div id="entry" className="centralized">
               <h1>ENTRAR</h1>
               <p id="LGPD">
-                Na KALIO, a sua privacidade é uma prioridade. Todos os seus
-                dados estão protegidos de acordo com a Lei Geral de Proteção de
-                Dados (LGPD). Utilizamos suas informações apenas para oferecer
-                um serviço seguro, eficiente e personalizado. Garantimos total
-                sigilo, segurança e transparência no tratamento dos seus dados.
+                Na KALIO, sua privacidade é prioridade. Seus dados são
+                protegidos pela LGPD e utilizados apenas para oferecer um
+                serviço seguro, eficiente e personalizado.
               </p>
             </div>
 
@@ -130,21 +138,37 @@ function Login() {
                 </p>
               )}
 
+              {serverError && (
+                <p
+                  style={{ color: "red", fontSize: "0.9rem", margin: "4px 0" }}
+                >
+                  {serverError}
+                </p>
+              )}
+
               <div id="button">
-                <button className="btn" onClick={handleLogin}>
-                  ENTRAR
+                <button
+                  className="btn"
+                  onClick={handleLogin}
+                  disabled={loading}
+                >
+                  {loading ? "Entrando..." : "ENTRAR"}
                 </button>
               </div>
             </div>
 
             <div id="options__width">
               <div id="options" className="centralized">
-                <p onClick={() => navigate("/register", { replace: true })}>
+                <p
+                  onClick={() =>
+                    navigate("/register", { state: { from: lastPage } })
+                  }
+                >
                   Registre-se
                 </p>
                 <p
                   onClick={() =>
-                    navigate("/forgot-password", { replace: true })
+                    navigate("/forgot-password", { state: { from: lastPage } })
                   }
                 >
                   Esqueceu a senha?
