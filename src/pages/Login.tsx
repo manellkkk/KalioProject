@@ -25,7 +25,7 @@ function validarCPF(cpf: string) {
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const lastPage = location.state?.from || "/dashboard";
+  const lastPage = location.state?.from || "/";
 
   const [cpfValue, setCpfValue] = useState("");
   const [password, setPassword] = useState("");
@@ -34,6 +34,28 @@ function Login() {
   const [passwordError, setPasswordError] = useState("");
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const checkIfLoggedIn = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/aluno/verify-token",
+          {
+            credentials: "include",
+          }
+        );
+
+        if (response.ok) {
+          // Se o token é válido, redireciona para "/"
+          navigate("/", { replace: true });
+        }
+      } catch (error) {
+        console.error("Erro ao verificar autenticação:", error);
+      }
+    };
+
+    checkIfLoggedIn();
+  }, [navigate]);
 
   useEffect(() => {
     const cpfDigits = cpfValue.replace(/\D/g, "");
@@ -87,6 +109,8 @@ function Login() {
         } else {
           setServerError(data.error || "Erro ao realizar login.");
         }
+      } else {
+        navigate(lastPage);
       }
     } catch (error) {
       console.error(error);
@@ -137,7 +161,6 @@ function Login() {
                   {passwordError}
                 </p>
               )}
-
               {serverError && (
                 <p
                   style={{ color: "red", fontSize: "0.9rem", margin: "4px 0" }}

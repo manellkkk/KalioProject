@@ -1,5 +1,3 @@
-// Register.tsx (completo e funcional com retorno para a última página)
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -47,11 +45,51 @@ function Register() {
   }
 
   useEffect(() => {
+    const checkIfLoggedIn = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/aluno/verify-token",
+          {
+            credentials: "include",
+          }
+        );
+
+        if (response.ok) {
+          navigate("/", { replace: true });
+        }
+      } catch (error) {
+        console.error("Erro ao verificar autenticação:", error);
+      }
+    };
+
+    checkIfLoggedIn();
+  }, [navigate]);
+
+  useEffect(() => {
     if (fullName.trim() !== "") setFullNameError("");
   }, [fullName]);
+
+  // Validação do nome de usuário: sem espaços, só letras, números, ponto e underline, max 16 chars
   useEffect(() => {
-    if (username.trim() !== "") setUsernameError("");
+    const nome = username.trim();
+    if (nome === "") {
+      setUsernameError("");
+      return;
+    }
+    if (nome.length > 16) {
+      setUsernameError("O nome de usuário deve ter no máximo 16 caracteres.");
+      return;
+    }
+    const regex = /^[a-zA-Z0-9._]+$/;
+    if (!regex.test(nome)) {
+      setUsernameError(
+        "O nome de usuário só pode conter letras, números, ponto (.) e underline (_), sem espaços."
+      );
+    } else {
+      setUsernameError("");
+    }
   }, [username]);
+
   useEffect(() => {
     const cpfDigits = cpfValue.replace(/\D/g, "");
     if (cpfDigits.length === 11) {
@@ -60,13 +98,16 @@ function Register() {
       setCpfError("");
     }
   }, [cpfValue]);
+
   useEffect(() => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (emailRegex.test(email)) setEmailError("");
   }, [email]);
+
   useEffect(() => {
     if (password.length >= 6) setPasswordError("");
   }, [password]);
+
   useEffect(() => {
     if (repeatPassword === password) setRepeatPasswordError("");
   }, [repeatPassword, password]);
@@ -79,9 +120,18 @@ function Register() {
       setFullNameError("O nome completo é obrigatório.");
       hasError = true;
     }
-    if (username.trim() === "") {
+    const nomeUsuarioTrim = username.trim();
+    if (nomeUsuarioTrim === "") {
       setUsernameError("O nome de usuário é obrigatório.");
       hasError = true;
+    } else {
+      const regex = /^[a-zA-Z0-9._]{1,16}$/;
+      if (!regex.test(nomeUsuarioTrim)) {
+        setUsernameError(
+          "O nome de usuário só pode conter letras, números, ponto (.) e underline (_), sem espaços, e até 16 caracteres."
+        );
+        hasError = true;
+      }
     }
     const cpfDigits = cpfValue.replace(/\D/g, "");
     if (cpfDigits.length !== 11 || !validarCPF(cpfDigits)) {
@@ -142,7 +192,7 @@ function Register() {
               <input
                 type="text"
                 className="input-field"
-                placeholder="NOME COMPLETO"
+                placeholder="Nome Completo"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />
@@ -155,7 +205,7 @@ function Register() {
               <input
                 type="text"
                 className="input-field"
-                placeholder="NOME DE USUÁRIO"
+                placeholder="Nome de Usuário"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
@@ -173,7 +223,7 @@ function Register() {
               <input
                 type="email"
                 className="input-field"
-                placeholder="E-MAIL"
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -184,7 +234,7 @@ function Register() {
               <input
                 type="password"
                 className="input-field"
-                placeholder="SENHA"
+                placeholder="Senha"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -197,7 +247,7 @@ function Register() {
               <input
                 type="password"
                 className="input-field"
-                placeholder="REPETIR SENHA"
+                placeholder="Repita a senha"
                 value={repeatPassword}
                 onChange={(e) => setRepeatPassword(e.target.value)}
               />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function formatCPF(value: string) {
   const onlyDigits = value.replace(/\D/g, "");
@@ -13,21 +13,38 @@ function formatCPF(value: string) {
 interface CPFInputProps {
   className?: string;
   onChange?: (value: string) => void;
+  placeholder?: string;
+  value?: string;
 }
 
-export default function CPFInput({ className, onChange }: CPFInputProps) {
-  const [cpf, setCpf] = useState("");
+export default function CPFInput({
+  className,
+  onChange,
+  placeholder = "CPF",
+  value,
+}: CPFInputProps) {
+  const [cpf, setCpf] = useState(value ?? "");
+
+  // Atualiza o estado interno se `value` externo mudar
+  useEffect(() => {
+    if (value !== undefined) {
+      setCpf(formatCPF(value));
+    }
+  }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatCPF(e.target.value);
-    setCpf(formatted);
+    if (value === undefined) {
+      // Se não é controlado externamente, atualiza o estado interno
+      setCpf(formatted);
+    }
     if (onChange) onChange(formatted);
   };
 
   return (
     <input
       type="text"
-      placeholder="CPF"
+      placeholder={placeholder}
       maxLength={14}
       value={cpf}
       onChange={handleChange}
