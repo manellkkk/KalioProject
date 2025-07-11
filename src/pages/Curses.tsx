@@ -1,7 +1,40 @@
+import { useState, useEffect, useCallback } from "react";
 import Layout from "../components/Layout";
 import "../assets/css/curses.css";
+import axios from "axios";
+
+interface Curso {
+  idCurso: number;
+  nome: string;
+  link: string;
+  preco: number;
+  area: string;
+  linguagem: string;
+  dificuldade: string;
+}
 
 function Curses() {
+  const [cursos, setCursos] = useState<Curso[]>([]);
+  const [dificuldade, setDificuldade] = useState<string>("Todas");
+  const [area, setArea] = useState<string>("Todas");
+  const [linguagem, setLinguagem] = useState<string>("Todas");
+
+  const fetchCursos = useCallback(async () => {
+    try {
+      const params = { dificuldade, area, linguagem };
+      const response = await axios.get("http://localhost:3000/cursos/filter", {
+        params,
+      });
+      setCursos(response.data);
+    } catch (error) {
+      console.error("Erro ao carregar cursos:", error);
+    }
+  }, [dificuldade, area, linguagem]);
+
+  useEffect(() => {
+    fetchCursos();
+  }, [fetchCursos]);
+
   return (
     <Layout>
       <section>
@@ -11,78 +44,80 @@ function Curses() {
               <div>
                 <h2>DIFICULDADE</h2>
                 <div>
-                  <div className="option">
-                    <input
-                      type="radio"
-                      name="dificuldade"
-                      id="todas-dificuldade"
-                    />
-                    <label htmlFor="todas-dificuldade">Todas</label>
-                  </div>
-                  <div className="option">
-                    <input type="radio" name="dificuldade" id="iniciante" />
-                    <label htmlFor="iniciante">Iniciante</label>
-                  </div>
-                  <div className="option">
-                    <input type="radio" name="dificuldade" id="intermediario" />
-                    <label htmlFor="intermediario">Intermediário</label>
-                  </div>
-                  <div className="option">
-                    <input type="radio" name="dificuldade" id="avancado" />
-                    <label htmlFor="avancado">Avançado</label>
-                  </div>
+                  {["Todas", "Iniciante", "Intermediário", "Avançado"].map(
+                    (dif) => (
+                      <div className="option" key={dif}>
+                        <input
+                          type="radio"
+                          name="dificuldade"
+                          id={dif.toLowerCase()}
+                          checked={dificuldade === dif}
+                          onChange={() => setDificuldade(dif)}
+                        />
+                        <label htmlFor={dif.toLowerCase()}>{dif}</label>
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
 
               <div className="filter">
                 <h2>ÁREA</h2>
                 <div>
-                  <div className="option">
-                    <input type="radio" name="area" id="todas-area" />
-                    <label htmlFor="todas-area">Todas</label>
-                  </div>
-                  <div className="option">
-                    <input type="radio" name="area" id="programacao" />
-                    <label htmlFor="programacao">Programação</label>
-                  </div>
-                  <div className="option">
-                    <input type="radio" name="area" id="web" />
-                    <label htmlFor="web">Desenvolvimento Web</label>
-                  </div>
-                  <div className="option">
-                    <input type="radio" name="area" id="banco" />
-                    <label htmlFor="banco">Banco de Dados</label>
-                  </div>
-                  <div className="option">
-                    <input type="radio" name="area" id="hardware" />
-                    <label htmlFor="hardware">Hardware</label>
-                  </div>
+                  {[
+                    "Todas",
+                    "Programação",
+                    "Desenvolvimento Web",
+                    "Banco de Dados",
+                    "Hardware",
+                  ].map((ar) => (
+                    <div className="option" key={ar}>
+                      <input
+                        type="radio"
+                        name="area"
+                        id={ar.toLowerCase().replace(/ /g, "-")}
+                        checked={area === ar}
+                        onChange={() => setArea(ar)}
+                      />
+                      <label htmlFor={ar.toLowerCase().replace(/ /g, "-")}>
+                        {ar}
+                      </label>
+                    </div>
+                  ))}
                 </div>
               </div>
 
               <div className="filter">
                 <h2>LINGUAGEM</h2>
                 <div>
-                  <div className="option">
-                    <input type="radio" name="linguagem" id="todas-linguagem" />
-                    <label htmlFor="todas-linguagem">Todas</label>
-                  </div>
-                  <div className="option">
-                    <input type="radio" name="linguagem" id="python" />
-                    <label htmlFor="python">Python</label>
-                  </div>
-                  <div className="option">
-                    <input type="radio" name="linguagem" id="javascript" />
-                    <label htmlFor="javascript">JavaScript Web</label>
-                  </div>
-                  <div className="option">
-                    <input type="radio" name="linguagem" id="java" />
-                    <label htmlFor="java">Java</label>
-                  </div>
-                  <div className="option">
-                    <input type="radio" name="linguagem" id="htmlcss" />
-                    <label htmlFor="htmlcss">HTML / CSS</label>
-                  </div>
+                  {[
+                    "Todas",
+                    "Python",
+                    "JavaScript Web",
+                    "Java",
+                    "HTML / CSS",
+                  ].map((ling) => (
+                    <div className="option" key={ling}>
+                      <input
+                        type="radio"
+                        name="linguagem"
+                        id={ling
+                          .toLowerCase()
+                          .replace(/ /g, "")
+                          .replace("/", "")}
+                        checked={linguagem === ling}
+                        onChange={() => setLinguagem(ling)}
+                      />
+                      <label
+                        htmlFor={ling
+                          .toLowerCase()
+                          .replace(/ /g, "")
+                          .replace("/", "")}
+                      >
+                        {ling}
+                      </label>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -94,29 +129,50 @@ function Curses() {
                 type="text"
                 placeholder="Pesquisar cursos..."
                 className="search-input"
+                disabled
               />
             </div>
 
             <div className="curses__list">
-              {Array.from({ length: 24 }).map((_, idx) => (
-                <div className="block__curse" key={idx}>
-                  <div className="title__curse">
-                    <div className="tags">
-                      <div className="tags__decoration">
-                        <p>Linguagem</p>
+              {cursos.length === 0 ? (
+                <p
+                  id="no-curses"
+                  style={{
+                    textAlign: "center",
+                    fontSize: "1.2rem",
+                    marginTop: "2rem",
+                  }}
+                >
+                  Não há cursos disponíveis no momento.
+                </p>
+              ) : (
+                cursos.map((curso) => (
+                  <div className="block__curse" key={curso.idCurso}>
+                    <div className="title__curse">
+                      <div className="tags">
+                        <div className="tags__decoration">
+                          <p>{curso.linguagem}</p>
+                        </div>
+                        <div className="tags__decoration">
+                          <p>{curso.dificuldade}</p>
+                        </div>
+                        <div className="tags__decoration">
+                          <p>{curso.area}</p>
+                        </div>
                       </div>
-                      <div className="tags__decoration">
-                        <p>Dificuldade</p>
-                      </div>
-                      <div className="tags__decoration">
-                        <p>Área</p>
-                      </div>
+                      <h1>{curso.nome}</h1>
                     </div>
-                    <h1>NOME DO CURSO {idx + 1}</h1>
+                    <a
+                      href={curso.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btnSaibaMais"
+                    >
+                      Saiba mais
+                    </a>
                   </div>
-                  <button className="btn btnSaibaMais">Saiba mais</button>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </article>

@@ -156,3 +156,6 @@ section article {
   border-color: #6c52b3;
   background: rgba(255, 255, 255, 0.05);
 }
+#no-curses {
+  font-size: 14px !important;
+}
