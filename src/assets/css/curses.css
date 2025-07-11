@@ -1,0 +1,158 @@
+section {
+  justify-content: left;
+}
+section article {
+  justify-content: left;
+}
+.filters {
+  margin-bottom: 20px;
+  height: 100%;
+  width: 20%;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  padding-left: 4%;
+}
+.filter {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.filters h2 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  font-family: "GreaterTheory";
+}
+.option {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.option input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid white;
+  border-radius: 50%;
+  background: transparent;
+  outline: none;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border 0.2s;
+}
+.option input[type="radio"]:checked {
+  background: white;
+}
+.option label {
+  cursor: pointer;
+  font-size: 14px;
+}
+.curses__right {
+  width: 80%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.curses {
+  display: flex;
+}
+.curses__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 95%;
+  box-sizing: border-box;
+  justify-content: flex-start;
+
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.curses__list::-webkit-scrollbar {
+  width: 8px;
+}
+.curses__list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+.curses__list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+.curses__list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+.block__curse {
+  flex: 1 1 300px;
+  max-width: 350px;
+  min-width: 250px;
+  height: 215px;
+  background: #674da3;
+  border-radius: 8px;
+  padding: 24px;
+  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+.block__curse h1 {
+  font-family: "GreaterTheory";
+  font-size: 24px;
+}
+.tags {
+  display: flex;
+  margin-bottom: 8px;
+}
+.block__curse p {
+  color: #f9f9f9;
+  font-size: 10px;
+}
+.tags__decoration {
+  border: 1px solid #f9f9f9;
+  border-radius: 16px;
+  padding: 6px;
+  margin-right: 6px;
+}
+.btnSaibaMais {
+  border-color: #52b37a;
+  width: auto;
+  height: auto;
+  font-size: 14px;
+}
+.btnSaibaMais :hover {
+  background-color: #52b37a !important;
+}
+.search-bar {
+  display: flex;
+  margin-left: 24px;
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding-top: 7%;
+}
+.search-input {
+  width: 60%;
+  max-width: 500px;
+  padding: 10px 14px;
+  border: 2px solid #f9f9f9;
+  border-radius: 8px;
+  font-size: 14px;
+  background: transparent;
+  color: #f9f9f9;
+  outline: none;
+  transition: border-color 0.3s, background 0.3s;
+}
+.search-input::placeholder {
+  color: #cccccc;
+}
+.search-input:focus {
+  border-color: #6c52b3;
+  background: rgba(255, 255, 255, 0.05);
+}

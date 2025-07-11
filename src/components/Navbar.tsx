@@ -94,7 +94,7 @@ function Navbar() {
         <ul>
           <li>
             <NavLink
-              to="/cursos"
+              to="/curses"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
               Cursos

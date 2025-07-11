@@ -4,8 +4,11 @@ import PCConding from "../assets/images/pc_coding.png";
 import Coding_icon from "../assets/logos/coding_icon.jpg";
 import Objective_icon from "../assets/logos/objective_icon.jpg";
 import "../assets/css/home.css";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+  const navigate = useNavigate();
+
   return (
     <Layout>
       <section id="first__background">
@@ -23,7 +26,9 @@ export default function Home() {
                   criação de soluções reais.
                 </p>
                 <div id="btn_start">
-                  <button className="btn">COMECE AGORA</button>
+                  <button className="btn" onClick={() => navigate("/curses")}>
+                    COMECE AGORA
+                  </button>
                 </div>
               </div>
             </div>
