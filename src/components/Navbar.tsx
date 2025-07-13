@@ -13,6 +13,7 @@ const API_URL = import.meta.env.VITE_API_URL
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true); // NOVO estado para bloquear renderização
   const [profilePic, setProfilePic] = useState(defaultProfilePic);
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
@@ -48,6 +49,8 @@ function Navbar() {
         console.error("Erro ao verificar token:", error);
         setLoggedIn(false);
         setProfilePic(defaultProfilePic);
+      } finally {
+        setCheckingAuth(false); // terminou a checagem
       }
     };
     checkAuth();
@@ -84,6 +87,11 @@ function Navbar() {
     navigate("/", { replace: true });
     window.location.reload(); // força recarregar o estado da Navbar
   };
+
+  // Se ainda está checando autenticação, não renderiza nada (ou pode renderizar um loader)
+  if (checkingAuth) {
+    return null; // ou um spinner simples se preferir
+  }
 
   return (
     <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
