@@ -13,18 +13,54 @@ interface Curso {
   linguagem: string;
 }
 
-// Pega a URL base da API da variável de ambiente VITE_API_URL
+interface Area {
+  idArea: number;
+  nome: string;
+}
+
+interface Linguagem {
+  idLinguagem: number;
+  nome: string;
+}
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 function Curses() {
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // filtros fixos
+  const dificuldades = ["Todas", "Iniciante", "Intermediário", "Avançado"];
+
+  // estados para filtros dinâmicos
+  const [areas, setAreas] = useState<Area[]>([]);
+  const [linguagens, setLinguagens] = useState<Linguagem[]>([]);
+
   const [filtroDificuldade, setFiltroDificuldade] = useState("Todas");
   const [filtroArea, setFiltroArea] = useState("Todas");
   const [filtroLinguagem, setFiltroLinguagem] = useState("Todas");
   const [busca, setBusca] = useState("");
 
+  // Buscar áreas e linguagens ao montar o componente
+  useEffect(() => {
+    async function fetchFiltros() {
+      try {
+        const [areaRes, linguagemRes] = await Promise.all([
+          axios.get<Area[]>(`${API_URL}/api/areas`),
+          axios.get<Linguagem[]>(`${API_URL}/api/linguagens`),
+        ]);
+
+        setAreas(areaRes.data);
+        setLinguagens(linguagemRes.data);
+      } catch (error) {
+        console.error("Erro ao carregar filtros:", error);
+      }
+    }
+
+    fetchFiltros();
+  }, []);
+
+  // Buscar cursos com base nos filtros
   useEffect(() => {
     const fetchCursos = async () => {
       setLoading(true);
@@ -60,22 +96,20 @@ function Curses() {
               <div>
                 <h2>DIFICULDADE</h2>
                 <div>
-                  {["Todas", "Iniciante", "Intermediário", "Avançado"].map(
-                    (nivel) => (
-                      <div className="option" key={nivel}>
-                        <input
-                          type="radio"
-                          name="dificuldade"
-                          id={`dificuldade-${nivel.toLowerCase()}`}
-                          checked={filtroDificuldade === nivel}
-                          onChange={() => setFiltroDificuldade(nivel)}
-                        />
-                        <label htmlFor={`dificuldade-${nivel.toLowerCase()}`}>
-                          {nivel}
-                        </label>
-                      </div>
-                    )
-                  )}
+                  {dificuldades.map((nivel) => (
+                    <div className="option" key={nivel}>
+                      <input
+                        type="radio"
+                        name="dificuldade"
+                        id={`dificuldade-${nivel.toLowerCase()}`}
+                        checked={filtroDificuldade === nivel}
+                        onChange={() => setFiltroDificuldade(nivel)}
+                      />
+                      <label htmlFor={`dificuldade-${nivel.toLowerCase()}`}>
+                        {nivel}
+                      </label>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -83,27 +117,36 @@ function Curses() {
               <div className="filter">
                 <h2>ÁREA</h2>
                 <div>
-                  {[
-                    "Todas",
-                    "Programação",
-                    "Desenvolvimento Web",
-                    "Banco de Dados",
-                    "Hardware",
-                  ].map((area) => (
-                    <div className="option" key={area}>
+                  {/* Sempre exibe a opção "Todas" */}
+                  <div className="option" key="todas-area">
+                    <input
+                      type="radio"
+                      name="area"
+                      id="area-todas"
+                      checked={filtroArea === "Todas"}
+                      onChange={() => setFiltroArea("Todas")}
+                    />
+                    <label htmlFor="area-todas">Todas</label>
+                  </div>
+
+                  {/* Agora as áreas dinâmicas */}
+                  {areas.map((area) => (
+                    <div className="option" key={area.idArea}>
                       <input
                         type="radio"
                         name="area"
-                        id={`area-${area.toLowerCase().replace(/\s+/g, "")}`}
-                        checked={filtroArea === area}
-                        onChange={() => setFiltroArea(area)}
+                        id={`area-${area.nome
+                          .toLowerCase()
+                          .replace(/\s+/g, "")}`}
+                        checked={filtroArea === area.nome}
+                        onChange={() => setFiltroArea(area.nome)}
                       />
                       <label
-                        htmlFor={`area-${area
+                        htmlFor={`area-${area.nome
                           .toLowerCase()
                           .replace(/\s+/g, "")}`}
                       >
-                        {area}
+                        {area.nome}
                       </label>
                     </div>
                   ))}
@@ -114,29 +157,36 @@ function Curses() {
               <div className="filter">
                 <h2>LINGUAGEM</h2>
                 <div>
-                  {[
-                    "Todas",
-                    "Python",
-                    "JavaScript Web",
-                    "Java",
-                    "HTML / CSS",
-                  ].map((linguagem) => (
-                    <div className="option" key={linguagem}>
+                  {/* Sempre exibe "Todas" */}
+                  <div className="option" key="todas-linguagem">
+                    <input
+                      type="radio"
+                      name="linguagem"
+                      id="linguagem-todas"
+                      checked={filtroLinguagem === "Todas"}
+                      onChange={() => setFiltroLinguagem("Todas")}
+                    />
+                    <label htmlFor="linguagem-todas">Todas</label>
+                  </div>
+
+                  {/* Linguagens dinâmicas */}
+                  {linguagens.map((linguagem) => (
+                    <div className="option" key={linguagem.idLinguagem}>
                       <input
                         type="radio"
                         name="linguagem"
-                        id={`linguagem-${linguagem
+                        id={`linguagem-${linguagem.nome
                           .toLowerCase()
                           .replace(/\s+|\/+/g, "")}`}
-                        checked={filtroLinguagem === linguagem}
-                        onChange={() => setFiltroLinguagem(linguagem)}
+                        checked={filtroLinguagem === linguagem.nome}
+                        onChange={() => setFiltroLinguagem(linguagem.nome)}
                       />
                       <label
-                        htmlFor={`linguagem-${linguagem
+                        htmlFor={`linguagem-${linguagem.nome
                           .toLowerCase()
                           .replace(/\s+|\/+/g, "")}`}
                       >
-                        {linguagem}
+                        {linguagem.nome}
                       </label>
                     </div>
                   ))}
