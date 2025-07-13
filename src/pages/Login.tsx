@@ -1,12 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import "../assets/css/login.css";
-import KalioLogo from "../assets/logos/kalio_logo_extend.png";
-import CPFInput from "../components/CPFInput";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-// Validação real de CPF
 function validarCPF(cpf: string) {
   cpf = cpf.replace(/[^\d]+/g, "");
   if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
@@ -38,32 +34,26 @@ function Login() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const checkIfLoggedIn = async () => {
+    async function checkIfLoggedIn() {
       try {
         const response = await fetch(`${API_URL}/api/aluno/verify-token`, {
-          credentials: "include",
+          credentials: "include", // importantíssimo para enviar cookie
         });
-
         if (response.ok) {
-          // Se o token é válido, redireciona para "/"
           navigate("/", { replace: true });
         }
       } catch (error) {
         console.error("Erro ao verificar autenticação:", error);
       }
-    };
-
+    }
     checkIfLoggedIn();
   }, [navigate]);
 
   useEffect(() => {
     const cpfDigits = cpfValue.replace(/\D/g, "");
     if (cpfDigits.length === 11) {
-      if (!validarCPF(cpfDigits)) {
-        setCpfError("CPF inválido.");
-      } else {
-        setCpfError("");
-      }
+      if (!validarCPF(cpfDigits)) setCpfError("CPF inválido.");
+      else setCpfError("");
     } else {
       setCpfError("");
     }
@@ -73,7 +63,7 @@ function Login() {
     if (password.length >= 6) setPasswordError("");
   }, [password]);
 
-  const handleLogin = async () => {
+  async function handleLogin() {
     setServerError("");
     let hasError = false;
     const cpfDigits = cpfValue.replace(/\D/g, "");
@@ -96,18 +86,14 @@ function Login() {
       const response = await fetch(`${API_URL}/api/aluno/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        credentials: "include", // importante para cookie cross-site
         body: JSON.stringify({ cpf: cpfDigits, senha: password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        if (data.redirect === "/verify-email" && data.token) {
-          navigate("/verify-email", { state: { token: data.token } });
-        } else {
-          setServerError(data.error || "Erro ao realizar login.");
-        }
+        setServerError(data.error || "Erro ao realizar login.");
       } else {
         navigate(lastPage);
       }
@@ -117,89 +103,31 @@ function Login() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <section>
-      <article>
-        <div className="block__login">
-          <div className="login__left">
-            <img src={KalioLogo} alt="Kalio Logo" />
-          </div>
-          <div className="login__right">
-            <div id="entry" className="centralized">
-              <h1>ENTRAR</h1>
-              <p id="LGPD">
-                Na KALIO, sua privacidade é prioridade. Seus dados são
-                protegidos pela LGPD e utilizados apenas para oferecer um
-                serviço seguro, eficiente e personalizado.
-              </p>
-            </div>
+      <input
+        type="text"
+        placeholder="CPF"
+        value={cpfValue}
+        onChange={(e) => setCpfValue(e.target.value)}
+      />
+      {cpfError && <p style={{ color: "red" }}>{cpfError}</p>}
 
-            <div id="inputs" className="input-container">
-              <CPFInput className="input-field" onChange={setCpfValue} />
-              {cpfError && (
-                <p
-                  style={{ color: "red", fontSize: "0.9rem", margin: "4px 0" }}
-                >
-                  {cpfError}
-                </p>
-              )}
+      <input
+        type="password"
+        placeholder="Senha"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      {passwordError && <p style={{ color: "red" }}>{passwordError}</p>}
 
-              <input
-                type="password"
-                className="input-field"
-                placeholder="SENHA"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              {passwordError && (
-                <p
-                  style={{ color: "red", fontSize: "0.9rem", margin: "4px 0" }}
-                >
-                  {passwordError}
-                </p>
-              )}
-              {serverError && (
-                <p
-                  style={{ color: "red", fontSize: "0.9rem", margin: "4px 0" }}
-                >
-                  {serverError}
-                </p>
-              )}
+      {serverError && <p style={{ color: "red" }}>{serverError}</p>}
 
-              <div id="button">
-                <button
-                  className="btn"
-                  onClick={handleLogin}
-                  disabled={loading}
-                >
-                  {loading ? "Entrando..." : "ENTRAR"}
-                </button>
-              </div>
-            </div>
-
-            <div id="options__width">
-              <div id="options" className="centralized">
-                <p
-                  onClick={() =>
-                    navigate("/register", { state: { from: lastPage } })
-                  }
-                >
-                  Registre-se
-                </p>
-                <p
-                  onClick={() =>
-                    navigate("/forgot-password", { state: { from: lastPage } })
-                  }
-                >
-                  Esqueceu a senha?
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </article>
+      <button onClick={handleLogin} disabled={loading}>
+        {loading ? "Entrando..." : "Entrar"}
+      </button>
     </section>
   );
 }
