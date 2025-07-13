@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import "../assets/css/curses.css";
 import axios from "axios";
@@ -6,61 +6,80 @@ import axios from "axios";
 interface Curso {
   idCurso: number;
   nome: string;
-  link: string;
+  link: string; // agora representa o slug amigável
   preco: number;
+  dificuldade: string;
   area: string;
   linguagem: string;
-  dificuldade: string;
 }
 
 function Curses() {
   const [cursos, setCursos] = useState<Curso[]>([]);
-  const [dificuldade, setDificuldade] = useState<string>("Todas");
-  const [area, setArea] = useState<string>("Todas");
-  const [linguagem, setLinguagem] = useState<string>("Todas");
+  const [loading, setLoading] = useState(true);
 
-  const fetchCursos = useCallback(async () => {
-    try {
-      const params = { dificuldade, area, linguagem };
-      const response = await axios.get("http://localhost:3000/cursos/filter", {
-        params,
-      });
-      setCursos(response.data);
-    } catch (error) {
-      console.error("Erro ao carregar cursos:", error);
-    }
-  }, [dificuldade, area, linguagem]);
+  const [filtroDificuldade, setFiltroDificuldade] = useState("Todas");
+  const [filtroArea, setFiltroArea] = useState("Todas");
+  const [filtroLinguagem, setFiltroLinguagem] = useState("Todas");
+  const [busca, setBusca] = useState("");
 
   useEffect(() => {
+    const fetchCursos = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/cursos/filter",
+          {
+            params: {
+              dificuldade: filtroDificuldade,
+              area: filtroArea,
+              linguagem: filtroLinguagem,
+              busca: busca.trim(),
+            },
+          }
+        );
+        setCursos(response.data);
+      } catch (error) {
+        console.error("Erro ao carregar cursos:", error);
+        setCursos([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchCursos();
-  }, [fetchCursos]);
+  }, [filtroDificuldade, filtroArea, filtroLinguagem, busca]);
 
   return (
     <Layout>
       <section>
         <article>
+          {/* FILTROS */}
           <div className="filters">
             <div>
+              {/* Dificuldade */}
               <div>
                 <h2>DIFICULDADE</h2>
                 <div>
                   {["Todas", "Iniciante", "Intermediário", "Avançado"].map(
-                    (dif) => (
-                      <div className="option" key={dif}>
+                    (nivel) => (
+                      <div className="option" key={nivel}>
                         <input
                           type="radio"
                           name="dificuldade"
-                          id={dif.toLowerCase()}
-                          checked={dificuldade === dif}
-                          onChange={() => setDificuldade(dif)}
+                          id={`dificuldade-${nivel.toLowerCase()}`}
+                          checked={filtroDificuldade === nivel}
+                          onChange={() => setFiltroDificuldade(nivel)}
                         />
-                        <label htmlFor={dif.toLowerCase()}>{dif}</label>
+                        <label htmlFor={`dificuldade-${nivel.toLowerCase()}`}>
+                          {nivel}
+                        </label>
                       </div>
                     )
                   )}
                 </div>
               </div>
 
+              {/* Área */}
               <div className="filter">
                 <h2>ÁREA</h2>
                 <div>
@@ -70,23 +89,28 @@ function Curses() {
                     "Desenvolvimento Web",
                     "Banco de Dados",
                     "Hardware",
-                  ].map((ar) => (
-                    <div className="option" key={ar}>
+                  ].map((area) => (
+                    <div className="option" key={area}>
                       <input
                         type="radio"
                         name="area"
-                        id={ar.toLowerCase().replace(/ /g, "-")}
-                        checked={area === ar}
-                        onChange={() => setArea(ar)}
+                        id={`area-${area.toLowerCase().replace(/\s+/g, "")}`}
+                        checked={filtroArea === area}
+                        onChange={() => setFiltroArea(area)}
                       />
-                      <label htmlFor={ar.toLowerCase().replace(/ /g, "-")}>
-                        {ar}
+                      <label
+                        htmlFor={`area-${area
+                          .toLowerCase()
+                          .replace(/\s+/g, "")}`}
+                      >
+                        {area}
                       </label>
                     </div>
                   ))}
                 </div>
               </div>
 
+              {/* Linguagem */}
               <div className="filter">
                 <h2>LINGUAGEM</h2>
                 <div>
@@ -96,25 +120,23 @@ function Curses() {
                     "JavaScript Web",
                     "Java",
                     "HTML / CSS",
-                  ].map((ling) => (
-                    <div className="option" key={ling}>
+                  ].map((linguagem) => (
+                    <div className="option" key={linguagem}>
                       <input
                         type="radio"
                         name="linguagem"
-                        id={ling
+                        id={`linguagem-${linguagem
                           .toLowerCase()
-                          .replace(/ /g, "")
-                          .replace("/", "")}
-                        checked={linguagem === ling}
-                        onChange={() => setLinguagem(ling)}
+                          .replace(/\s+|\/+/g, "")}`}
+                        checked={filtroLinguagem === linguagem}
+                        onChange={() => setFiltroLinguagem(linguagem)}
                       />
                       <label
-                        htmlFor={ling
+                        htmlFor={`linguagem-${linguagem
                           .toLowerCase()
-                          .replace(/ /g, "")
-                          .replace("/", "")}
+                          .replace(/\s+|\/+/g, "")}`}
                       >
-                        {ling}
+                        {linguagem}
                       </label>
                     </div>
                   ))}
@@ -123,52 +145,43 @@ function Curses() {
             </div>
           </div>
 
+          {/* PESQUISA */}
           <div className="curses__right">
             <div className="search-bar">
               <input
                 type="text"
                 placeholder="Pesquisar cursos..."
                 className="search-input"
-                disabled
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
               />
             </div>
 
+            {/* LISTAGEM */}
             <div className="curses__list">
-              {cursos.length === 0 ? (
-                <p
-                  id="no-curses"
-                  style={{
-                    textAlign: "center",
-                    fontSize: "1.2rem",
-                    marginTop: "2rem",
-                  }}
-                >
-                  Não há cursos disponíveis no momento.
-                </p>
+              {loading ? (
+                <p>Carregando cursos...</p>
+              ) : cursos.length === 0 ? (
+                <p>Não há cursos disponíveis no momento.</p>
               ) : (
                 cursos.map((curso) => (
                   <div className="block__curse" key={curso.idCurso}>
                     <div className="title__curse">
                       <div className="tags">
                         <div className="tags__decoration">
-                          <p>{curso.linguagem}</p>
-                        </div>
-                        <div className="tags__decoration">
                           <p>{curso.dificuldade}</p>
                         </div>
                         <div className="tags__decoration">
                           <p>{curso.area}</p>
                         </div>
+                        <div className="tags__decoration">
+                          <p>{curso.linguagem}</p>
+                        </div>
                       </div>
                       <h1>{curso.nome}</h1>
                     </div>
-                    <a
-                      href={curso.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btnSaibaMais"
-                    >
-                      Saiba mais
+                    <a href={`/curses/${curso.link}`}>
+                      <button className="btn btnSaibaMais">Ver curso</button>
                     </a>
                   </div>
                 ))

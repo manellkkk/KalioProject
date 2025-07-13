@@ -91,9 +91,9 @@ section article {
 }
 .block__curse {
   flex: 1 1 300px;
-  max-width: 350px;
+  max-width: 400px;
   min-width: 250px;
-  height: 215px;
+  height: 220px;
   background: #674da3;
   border-radius: 8px;
   padding: 24px;
@@ -119,6 +119,8 @@ section article {
   border-radius: 16px;
   padding: 6px;
   margin-right: 6px;
+  display: flex;
+  align-items: center;
 }
 .btnSaibaMais {
   border-color: #52b37a;

@@ -30,8 +30,13 @@ section {
   background-position: center;
   background-repeat: no-repeat;
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
   background-color: #20215b;
+}
+article {
+  min-height: 100vh;
+  height: auto;
 }
 ul {
   list-style-type: none;
