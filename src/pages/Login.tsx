@@ -41,7 +41,7 @@ function Login() {
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Verifica se já está logado ao carregar a página
+  // Verifica se já está logado ao carregar
   useEffect(() => {
     const checkIfLoggedIn = async () => {
       try {
@@ -73,7 +73,6 @@ function Login() {
     if (password.length >= 6) setPasswordError("");
   }, [password]);
 
-  // Função para login
   const handleLogin = async () => {
     setServerError("");
     let hasError = false;
@@ -104,8 +103,9 @@ function Login() {
       const data = await response.json();
 
       if (!response.ok) {
-        if (data.redirect === "/verify-email" && data.token) {
-          navigate("/verify-email", { state: { token: data.token } });
+        // Se o backend indicar que o email não está confirmado, redireciona
+        if (data.redirect === "/verify-email") {
+          navigate("/verify-email");
         } else {
           setServerError(data.error || "Erro ao realizar login.");
         }
@@ -134,7 +134,7 @@ function Login() {
               <p id="LGPD">
                 Na KALIO, sua privacidade é prioridade. Seus dados são
                 protegidos pela LGPD e utilizados apenas para oferecer um
-                serviço seguro, eficiente e personalizado.
+                serviço seguro e personalizado.
               </p>
             </div>
 
