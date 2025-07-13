@@ -6,7 +6,7 @@ import axios from "axios";
 interface Curso {
   idCurso: number;
   nome: string;
-  link: string; // agora representa o slug amigável
+  link: string;
   preco: number;
   dificuldade: string;
   area: string;

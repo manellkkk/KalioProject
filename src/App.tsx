@@ -7,6 +7,8 @@ import VerifyEmail from "./pages/VerifyEmail";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import CoursePage from "./pages/CoursePage";
+import PaymentFailure from "./pages/PaymentFailure";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 export default function App() {
   return (
@@ -20,6 +22,8 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/curses/:slug" element={<CoursePage />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failure" element={<PaymentFailure />} />
       </Routes>
     </BrowserRouter>
   );
