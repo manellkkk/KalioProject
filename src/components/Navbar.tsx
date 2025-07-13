@@ -93,9 +93,9 @@ function Navbar() {
     }
   };
 
-  // Se ainda está checando autenticação, renderiza um loader
+  // Se ainda está checando autenticação, renderiza nada
   if (checkingAuth) {
-    return <div className="navbar-loading">Carregando...</div>;
+    return null;
   }
 
   return (
