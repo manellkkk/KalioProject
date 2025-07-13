@@ -5,6 +5,8 @@ import "../assets/css/login.css";
 import KalioLogo from "../assets/logos/kalio_logo_extend.png";
 import CPFInput from "../components/CPFInput";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 function Register() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,12 +49,9 @@ function Register() {
   useEffect(() => {
     const checkIfLoggedIn = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/aluno/verify-token",
-          {
-            credentials: "include",
-          }
-        );
+        const response = await fetch(`${API_URL}/api/aluno/verify-token`, {
+          credentials: "include",
+        });
 
         if (response.ok) {
           navigate("/", { replace: true });
@@ -69,7 +68,6 @@ function Register() {
     if (fullName.trim() !== "") setFullNameError("");
   }, [fullName]);
 
-  // Validação do nome de usuário: sem espaços, só letras, números, ponto e underline, max 16 chars
   useEffect(() => {
     const nome = username.trim();
     if (nome === "") {
@@ -155,7 +153,7 @@ function Register() {
     if (hasError) return;
 
     try {
-      await axios.post("http://localhost:5000/api/aluno/register", {
+      await axios.post(`${API_URL}/api/aluno/register`, {
         nome: fullName,
         nomeUsuario: username,
         cpf: cpfDigits,

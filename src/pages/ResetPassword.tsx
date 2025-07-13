@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "../assets/css/forgotPassword.css";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 function ResetPassword() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,21 +19,18 @@ function ResetPassword() {
   const [serverError, setServerError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Redireciona para home se não tiver token
   useEffect(() => {
     if (!token) {
       navigate("/", { replace: true });
     }
   }, [token, navigate]);
 
-  // Limpa erro se senha tiver 6+ caracteres
   useEffect(() => {
     if (senha.length >= 6 && senhaError) {
       setSenhaError("");
     }
   }, [senha, senhaError]);
 
-  // Limpa erro se senhas coincidirem
   useEffect(() => {
     if (repitaSenha === senha && repitaSenhaError) {
       setRepitaSenhaError("");
@@ -54,7 +53,7 @@ function ResetPassword() {
     if (hasError) return;
 
     try {
-      await axios.post("http://localhost:5000/api/aluno/reset-password", {
+      await axios.post(`${API_URL}/api/aluno/reset-password`, {
         token,
         novaSenha: senha,
       });

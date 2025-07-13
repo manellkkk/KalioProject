@@ -4,6 +4,8 @@ import "../assets/css/login.css";
 import KalioLogo from "../assets/logos/kalio_logo_extend.png";
 import CPFInput from "../components/CPFInput";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 // Validação real de CPF
 function validarCPF(cpf: string) {
   cpf = cpf.replace(/[^\d]+/g, "");
@@ -38,12 +40,9 @@ function Login() {
   useEffect(() => {
     const checkIfLoggedIn = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/aluno/verify-token",
-          {
-            credentials: "include",
-          }
-        );
+        const response = await fetch(`${API_URL}/api/aluno/verify-token`, {
+          credentials: "include",
+        });
 
         if (response.ok) {
           // Se o token é válido, redireciona para "/"
@@ -94,7 +93,7 @@ function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/aluno/login", {
+      const response = await fetch(`${API_URL}/api/aluno/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

@@ -4,6 +4,8 @@ import "../assets/css/login.css";
 import "../assets/css/verifyEmail.css";
 import EmailIcon from "../assets/logos/email_icon.png";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 function VerifyEmail() {
   const [codigo, setCodigo] = useState("");
   const [error, setError] = useState("");
@@ -35,14 +37,11 @@ function VerifyEmail() {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/aluno/verify-email",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, codigo }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/aluno/verify-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, codigo }),
+      });
 
       const data = await response.json();
 
@@ -67,7 +66,7 @@ function VerifyEmail() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/aluno/resend-verification-code",
+        `${API_URL}/api/aluno/resend-verification-code`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

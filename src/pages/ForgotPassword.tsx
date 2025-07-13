@@ -3,6 +3,8 @@ import axios from "axios";
 import CPFInput from "../components/CPFInput";
 import "../assets/css/forgotPassword.css";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function ForgotPassword() {
   const [cpfValue, setCpfValue] = useState("");
   const [error, setError] = useState("");
@@ -41,7 +43,7 @@ function ForgotPassword() {
     setLoading(true);
 
     try {
-      await axios.post("http://localhost:5000/api/aluno/forgot-password", {
+      await axios.post(`${API_URL}/api/aluno/forgot-password`, {
         cpf: cpfDigits,
       });
 

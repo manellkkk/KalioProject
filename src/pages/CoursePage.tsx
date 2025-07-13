@@ -29,6 +29,9 @@ interface CursoPagina {
   modulos: Modulo[];
 }
 
+// Pega a URL base da API da variável de ambiente VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL;
+
 function CoursePage() {
   const { slug } = useParams<{ slug: string }>();
   const [curso, setCurso] = useState<CursoPagina | null>(null);
@@ -45,12 +48,9 @@ function CoursePage() {
     const fetchCurso = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(
-          `http://localhost:5000/api/cursos/slug/${slug}`,
-          {
-            withCredentials: true,
-          }
-        );
+        const { data } = await axios.get(`${API_URL}/api/cursos/slug/${slug}`, {
+          withCredentials: true,
+        });
         setCurso(data);
         setError("");
       } catch (err) {
@@ -71,14 +71,14 @@ function CoursePage() {
       setLoadingPagamento(true);
 
       // Verifica se usuário está logado
-      await axios.get("http://localhost:5000/api/aluno/verify-token", {
+      await axios.get(`${API_URL}/api/aluno/verify-token`, {
         withCredentials: true,
       });
 
       // Inicia pagamento
       console.log("Iniciando pagamento para idCurso:", curso.idCurso);
       const { data } = await axios.post(
-        `http://localhost:5000/api/payment/${curso.idCurso}`,
+        `${API_URL}/api/payment/${curso.idCurso}`,
         {},
         { withCredentials: true }
       );

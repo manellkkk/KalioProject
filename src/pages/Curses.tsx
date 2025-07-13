@@ -13,6 +13,9 @@ interface Curso {
   linguagem: string;
 }
 
+// Pega a URL base da API da variável de ambiente VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL;
+
 function Curses() {
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,17 +29,14 @@ function Curses() {
     const fetchCursos = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/cursos/filter",
-          {
-            params: {
-              dificuldade: filtroDificuldade,
-              area: filtroArea,
-              linguagem: filtroLinguagem,
-              busca: busca.trim(),
-            },
-          }
-        );
+        const response = await axios.get(`${API_URL}/api/cursos/filter`, {
+          params: {
+            dificuldade: filtroDificuldade,
+            area: filtroArea,
+            linguagem: filtroLinguagem,
+            busca: busca.trim(),
+          },
+        });
         setCursos(response.data);
       } catch (error) {
         console.error("Erro ao carregar cursos:", error);
