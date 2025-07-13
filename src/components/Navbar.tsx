@@ -4,6 +4,12 @@ import KalioLogo from "../assets/logos/kalio_logo_extend.png";
 import defaultProfilePic from "../assets/logos/profile_icon.jpg";
 import loginIcon from "../assets/logos/login_icon.png";
 
+const API_URL = import.meta.env.VITE_API_URL
+  ? import.meta.env.VITE_API_URL.startsWith("http")
+    ? import.meta.env.VITE_API_URL
+    : `https://${import.meta.env.VITE_API_URL}`
+  : "http://localhost:5000";
+
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -25,12 +31,9 @@ function Navbar() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/aluno/verify-token",
-          {
-            credentials: "include", // envia cookies automaticamente
-          }
-        );
+        const response = await fetch(`${API_URL}/api/aluno/verify-token`, {
+          credentials: "include", // envia cookies automaticamente
+        });
 
         if (response.ok) {
           const data = await response.json();
@@ -66,7 +69,7 @@ function Navbar() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/aluno/logout", {
+      const response = await fetch(`${API_URL}/api/aluno/logout`, {
         method: "POST",
         credentials: "include",
       });
