@@ -78,14 +78,19 @@ function Navbar() {
       });
       if (!response.ok) {
         console.error("Erro ao realizar logout no servidor.");
+        return; // Para aqui se erro no logout
       }
+
+      // Após logout no backend, limpar estado
+      setLoggedIn(false);
+      setProfilePic(defaultProfilePic);
+      setUsername("");
+
+      // Redireciona para a home ou página de login
+      navigate("/", { replace: true });
     } catch (error) {
       console.error("Erro no logout:", error);
     }
-    setLoggedIn(false);
-    setProfilePic(defaultProfilePic);
-    navigate("/", { replace: true });
-    window.location.reload(); // força recarregar o estado da Navbar
   };
 
   // Se ainda está checando autenticação, não renderiza nada (ou pode renderizar um loader)
