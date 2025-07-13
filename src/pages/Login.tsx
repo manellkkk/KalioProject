@@ -41,7 +41,7 @@ function Login() {
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Verifica se já está logado ao carregar
+  // Verifica se já está logado ao carregar a página
   useEffect(() => {
     const checkIfLoggedIn = async () => {
       try {
@@ -49,14 +49,14 @@ function Login() {
           credentials: "include",
         });
         if (response.ok) {
-          navigate("/", { replace: true });
+          navigate(lastPage, { replace: true });
         }
       } catch (error) {
         console.error("Erro ao verificar autenticação:", error);
       }
     };
     checkIfLoggedIn();
-  }, [navigate]);
+  }, [navigate, lastPage]);
 
   // Validação CPF ao digitar
   useEffect(() => {
