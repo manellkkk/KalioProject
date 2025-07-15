@@ -6,6 +6,9 @@ article {
 p {
   color: #5557bb;
 }
+.article {
+  justify-content: center;
+}
 .block__login {
   background-color: aliceblue;
   width: 80%;

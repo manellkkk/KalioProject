@@ -122,7 +122,7 @@ function Login() {
 
   return (
     <section>
-      <article>
+      <article className="article">
         <div className="block__login">
           <div className="login__left">
             <img src={KalioLogo} alt="Kalio Logo" />
