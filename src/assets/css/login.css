@@ -1,13 +1,11 @@
-article {
-  display: flex;
-  align-items: center;
-  background-color: rgba(10, 10, 35, 0.5);
-}
 p {
   color: #5557bb;
 }
 .article {
   justify-content: center;
+  display: flex;
+  align-items: center;
+  background-color: rgba(10, 10, 35, 0.5);
 }
 .block__login {
   background-color: aliceblue;
