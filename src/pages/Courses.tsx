@@ -25,7 +25,7 @@ interface Linguagem {
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-function Curses() {
+function Courses() {
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -244,4 +244,4 @@ function Curses() {
   );
 }
 
-export default Curses;
+export default Courses;
